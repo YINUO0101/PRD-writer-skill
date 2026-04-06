@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AI 创作 App 首页</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#09090E', 
+                        panelBg: '#15151C', // 稍微亮一点的面板底色
+                        cardBg: 'rgba(255, 255, 255, 0.04)',
+                        cardBorder: 'rgba(255, 255, 255, 0.08)',
+                        brandPurple: '#8B5CF6',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'ripple': 'ripple 1.5s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                            '50%': { opacity: .8, transform: 'scale(1.05)', boxShadow: '0 0 25px rgba(168, 85, 247, 0.8)' },
+                        },
+                        ripple: {
+                            '0%': { transform: 'scale(1)', opacity: 0.8 },
+                            '100%': { transform: 'scale(1.5)', opacity: 0 }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .glass-panel {
+            background: var(--cardBg, rgba(255,255,255,0.04));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--cardBorder, rgba(255,255,255,0.08));
+        }
+
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+        /* 页面切换动画类 */
+        .screen {
+            position: absolute;
+            inset: 0;
+            background-color: #09090E;
+            z-index: 40;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+        .screen.hidden-right { transform: translateX(100%); }
+        .screen.active { transform: translateX(0); }
+    </style>
+</head>
+<body class="bg-gray-900 flex justify-center items-center min-h-screen p-4 sm:p-8">
+
+    <!-- 模拟手机外壳容器 -->
+    <div class="relative w-full max-w-[400px] h-[850px] max-h-[95vh] bg-darkBg sm:rounded-[2.5rem] sm:ring-8 ring-gray-800 shadow-2xl overflow-hidden flex flex-col font-sans text-white">
+        
+        <!-- ==================== 主页 (Home Screen) ==================== -->
+        <div id="home-screen" class="absolute inset-0 z-10 flex flex-col overflow-y-auto no-scrollbar">
+            <!-- 环境光晕 -->
+            <div class="absolute top-0 left-0 w-full h-[300px] bg-purple-900/30 blur-[80px] rounded-full pointer-events-none -translate-y-1/2"></div>
+            
+            <div class="flex-1 px-5 pt-12 pb-28 z-10">
+                <!-- 顶部 -->
+                <div class="flex justify-between items-center mb-8">
+                    <div class="z-10">
+                        <div class="inline-flex items-center px-2.5 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-[10px] font-medium mb-3">
+                            <i class="ph-fill ph-sparkle mr-1"></i> AI 创作
+                        </div>
+                        <h1 class="text-2xl font-bold tracking-wide mb-1 text-white">你好，我是 <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Vee</span></h1>
+                        <p class="text-gray-400 text-xs">帮你生成想要的文案</p>
+                    </div>
+                    <div class="w-20 h-20 relative animate-float">
+                        <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-purple-600 via-indigo-500 to-teal-400 shadow-[0_0_30px_rgba(139,92,246,0.4)]"></div>
+                        <div class="absolute top-7 left-5 w-2 h-3 bg-white rounded-full"></div>
+                        <div class="absolute top-7 right-5 w-2 h-3 bg-white rounded-full"></div>
+                        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 w-3 h-3 border-b-2 border-white rounded-full"></div>
+                    </div>
+                </div>
+
+                <!-- 核心场景区 -->
+                <div class="grid grid-cols-3 gap-3 mb-8">
+                    <!-- 亲子故事机流程 -->
+                    <div onclick="startFlow('story')" class="glass-panel rounded-[1.25rem] p-4 flex flex-col items-center justify-center text-center relative overflow-hidden group active:scale-95 transition-transform duration-200 cursor-pointer">
+                        <div class="absolute inset-0 bg-gradient-to-b from-orange-500/10 to-transparent"></div>
+                        <div class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center mb-3 z-10">
+                            <i class="ph-fill ph-book-open-text text-xl text-orange-400"></i>
+                        </div>
+                        <h3 class="text-[13px] font-bold text-white/90 mb-1 z-10 whitespace-nowrap">亲子故事机</h3>
+                        <p class="text-[9px] text-gray-400 z-10 leading-tight">用妈妈声音讲故事</p>
+                    </div>
+
+                    <!-- AI角色陪伴流程 -->
+                    <div onclick="startFlow('role')" class="glass-panel rounded-[1.25rem] p-4 flex flex-col items-center justify-center text-center relative overflow-hidden group active:scale-95 transition-transform duration-200 cursor-pointer">
+                        <div class="absolute inset-0 bg-gradient-to-b from-purple-500/15 to-transparent border-t border-purple-500/30"></div>
+                        <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center mb-3 z-10">
+                            <i class="ph-fill ph-headphones text-xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-[13px] font-bold text-white/90 mb-1 z-10 whitespace-nowrap">AI 角色陪伴</h3>
+                        <p class="text-[9px] text-gray-400 z-10 leading-tight">定制专属音色</p>
+                    </div>
+
+                    <!-- 爆款口播流程 -->
+                    <div onclick="startFlow('marketing')" class="glass-panel rounded-[1.25rem] p-4 flex flex-col items-center justify-center text-center relative overflow-hidden group active:scale-95 transition-transform duration-200 cursor-pointer">
+                        <div class="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent"></div>
+                        <div class="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center mb-3 z-10">
+                            <i class="ph-fill ph-megaphone text-xl text-blue-400"></i>
+                        </div>
+                        <h3 class="text-[13px] font-bold text-white/90 mb-1 z-10 whitespace-nowrap">爆款口播</h3>
+                        <p class="text-[9px] text-gray-400 z-10 leading-tight">带货配音</p>
+                    </div>
+                </div>
+
+                <!-- 底层工具箱 -->
+                <div class="mb-10">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-[13px] text-gray-400 font-medium tracking-wide">更多工具</h2>
+                    </div>
+                    <div class="grid grid-cols-3 gap-y-6">
+                        <div class="flex flex-col items-center group cursor-pointer"><div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-2"><i class="ph ph-video text-2xl text-gray-300"></i></div><span class="text-[11px] text-gray-400">视频翻译</span></div>
+                        <div class="flex flex-col items-center group cursor-pointer"><div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-2"><i class="ph ph-waveform text-2xl text-gray-300"></i></div><span class="text-[11px] text-gray-400">音色克隆</span></div>
+                        <div class="flex flex-col items-center group cursor-pointer"><div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center mb-2"><i class="ph ph-magic-wand text-2xl text-gray-300"></i></div><span class="text-[11px] text-gray-400">AI 创作</span></div>
+                    </div>
+                </div>
+
+                <!-- 资产区 -->
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <div class="flex space-x-6">
+                        <button class="text-[15px] font-semibold text-white relative pb-1">我的创作<div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-1 bg-purple-500 rounded-full"></div></button>
+                    </div>
+                </div>
+                <div class="glass-panel rounded-[1.5rem] p-8 flex flex-col items-center justify-center min-h-[150px]">
+                    <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center shadow-inner mb-2"><i class="ph-duotone ph-package text-2xl text-gray-400"></i></div>
+                    <h4 class="text-sm text-gray-300">空空如也</h4>
+                </div>
+            </div>
+
+            <!-- 底部导航栏 -->
+            <div class="fixed bottom-0 left-0 w-full h-[90px] bg-darkBg/90 backdrop-blur-xl border-t border-white/5 z-20 flex justify-between items-center px-12 pb-4">
+                <div class="flex flex-col items-center text-white"><i class="ph-fill ph-house text-2xl mb-1"></i><div class="w-1 h-1 bg-white rounded-full"></div></div>
+                <div class="relative -top-6"><div class="absolute inset-0 bg-purple-500/50 rounded-full blur-[15px] animate-pulse-glow"></div><div class="relative w-16 h-16 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-400 p-[2px]"><div class="w-full h-full rounded-full bg-darkBg flex items-center justify-center"><span class="text-[22px] font-black text-white italic">AI</span></div></div></div>
+                <div class="flex flex-col items-center text-gray-500"><i class="ph ph-user text-2xl mb-1"></i></div>
+            </div>
+        </div>
+
+        <!-- ==================== 底部弹窗：选择克隆方式 (图一) ==================== -->
+        <div id="clone-method-backdrop" class="absolute inset-0 bg-black/60 z-50 opacity-0 pointer-events-none transition-opacity duration-300" onclick="closeCloneMethodSheet()"></div>
+        <div id="clone-method-sheet" class="absolute bottom-0 left-0 w-full bg-panelBg rounded-t-3xl z-50 transform translate-y-full transition-transform duration-300 px-5 pt-6 pb-12">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-semibold text-white flex items-center">选择克隆方式 <span class="text-brandPurple text-xs ml-1 font-bold">AI</span></h3>
+                <i class="ph ph-question text-gray-400 text-xl"></i>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <!-- 录制声音 -->
+                <div onclick="navigateTo('screen-record'); closeCloneMethodSheet();" class="bg-[#1C1C26] rounded-2xl p-6 flex flex-col items-center justify-center active:scale-95 transition-transform cursor-pointer">
+                    <div class="relative mb-3">
+                        <i class="ph-fill ph-microphone-stage text-4xl text-purple-400"></i>
+                        <div class="absolute -bottom-1 -right-2 bg-panelBg rounded-full p-0.5"><i class="ph-fill ph-squares-four text-white text-xs"></i></div>
+                    </div>
+                    <span class="text-sm text-gray-200">录制声音</span>
+                </div>
+                <!-- 上传文件 -->
+                <div onclick="simulateUpload()" class="bg-[#1C1C26] rounded-2xl p-6 flex flex-col items-center justify-center active:scale-95 transition-transform cursor-pointer">
+                    <div class="relative mb-3">
+                        <i class="ph-fill ph-music-notes text-4xl text-blue-400"></i>
+                        <div class="absolute -bottom-1 -right-2 bg-panelBg rounded-full p-0.5"><i class="ph-bold ph-arrows-left-right text-white text-xs"></i></div>
+                    </div>
+                    <span class="text-sm text-gray-200">上传文件</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 页面 1：克隆音色录制 (图二) ==================== -->
+        <div id="screen-record" class="screen hidden-right flex flex-col pt-12 px-5 pb-10">
+            <div class="flex items-center justify-between mb-10">
+                <i class="ph ph-x text-2xl cursor-pointer" onclick="navigateBack()"></i>
+                <h2 id="record-title" class="text-lg font-medium">克隆音色</h2>
+                <div class="w-6"></div> <!-- 占位 -->
+            </div>
+
+            <div class="flex flex-col items-center flex-1">
+                <!-- 顶部提示区 -->
+                <div class="bg-white/5 rounded-full px-4 py-2 flex items-center mb-10">
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 mr-2 flex items-center justify-center shadow-[0_0_10px_rgba(139,92,246,0.5)]">
+                        <div class="w-1 h-1.5 bg-white rounded-full opacity-80 mt-1"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">不知道说什么？ <span class="text-gray-300 ml-1">试试</span></span>
+                </div>
+
+                <!-- 朗读文本区 -->
+                <p class="text-xl text-center leading-relaxed tracking-wide mb-8 font-medium px-4">
+                    你的时间有限，<br>
+                    所以不要浪费时间活在别<br>
+                    人的人生里。<br>
+                    不要被教条所限，<br>
+                    那是生活在别人的思考结<br>
+                    果里
+                </p>
+                <button class="px-5 py-1.5 rounded-full border border-gray-600 text-gray-400 text-xs hover:bg-white/5 transition">换一换</button>
+            </div>
+
+            <!-- 底部录音控制区 -->
+            <div class="flex flex-col items-center mt-auto">
+                <div class="bg-white/10 rounded-full px-8 py-3 mb-8">
+                    <span id="record-timer" class="text-3xl font-light tracking-widest text-gray-400">00:00</span>
+                </div>
+                
+                <!-- 录音按钮 -->
+                <div class="relative flex items-center justify-center w-32 h-32 cursor-pointer" onclick="simulateRecording(this)">
+                    <!-- 录音时的波纹动画层 -->
+                    <div id="record-ripple-1" class="absolute inset-0 bg-brandPurple/20 rounded-full hidden"></div>
+                    <div id="record-ripple-2" class="absolute inset-4 bg-brandPurple/40 rounded-full hidden"></div>
+                    
+                    <div class="absolute inset-6 bg-brandPurple rounded-full flex items-center justify-center z-10 shadow-[0_0_20px_rgba(139,92,246,0.5)] transition-transform active:scale-90">
+                        <i id="record-icon" class="ph-fill ph-microphone text-3xl text-white"></i>
+                    </div>
+                </div>
+                <p id="record-hint" class="text-xs text-gray-500 mt-6">点击开始录制</p>
+            </div>
+        </div>
+
+        <!-- ==================== 页面 2：克隆配置 (图三) ==================== -->
+        <div id="screen-config" class="screen hidden-right flex flex-col pt-12 px-5 pb-8">
+            <div class="flex items-center justify-between mb-8">
+                <i class="ph ph-x text-2xl cursor-pointer" onclick="navigateBack()"></i>
+                <h2 id="config-title" class="text-lg font-medium">克隆配置</h2>
+                <div class="w-6"></div>
+            </div>
+
+            <!-- 顶部波纹视觉效果 -->
+            <div class="flex justify-center items-center space-x-[-15px] mb-10 overflow-hidden px-4">
+                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-rose-400 to-orange-300 relative shadow-lg z-10">
+                    <div class="absolute inset-0 bg-black/20 rounded-full" style="clip-path: polygon(50% 50%, 100% 0, 100% 100%); mix-blend-mode: overlay;"></div>
+                </div>
+                <div class="w-28 h-28 rounded-full bg-gradient-to-br from-gray-200 to-gray-500 relative shadow-xl z-20 scale-110">
+                    <div class="absolute inset-0 bg-black/40 rounded-full" style="clip-path: polygon(50% 50%, 0 0, 0 100%); mix-blend-mode: overlay;"></div>
+                </div>
+                <div class="w-20 h-20 rounded-full bg-white/10 border-2 border-white/5 flex items-center justify-center z-10 backdrop-blur-sm">
+                    <i class="ph ph-plus text-3xl text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- 播放条组件 -->
+            <div class="bg-[#1A1A24] rounded-2xl p-4 flex items-center mb-8">
+                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mr-4 shrink-0">
+                    <i class="ph-fill ph-play text-white"></i>
+                </div>
+                <div class="flex-1">
+                    <div class="h-1 bg-gray-600 rounded-full relative mb-2">
+                        <div class="absolute left-0 top-0 h-full w-[20%] bg-brandPurple rounded-full"></div>
+                        <div class="absolute left-[20%] top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow"></div>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-gray-500">
+                        <span>00:00</span>
+                        <span>00:11</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 音色名称输入 -->
+            <div class="mb-4">
+                <label class="block text-xs text-gray-400 mb-2">音色名称</label>
+                <div class="bg-[#1A1A24] rounded-xl px-4 py-3.5 flex justify-between items-center">
+                    <input id="config-voice-name" type="text" value="妈妈的声音" class="bg-transparent text-white text-sm outline-none w-full" />
+                    <i class="ph ph-pencil-simple text-gray-500"></i>
+                </div>
+            </div>
+
+            <!-- 底部按钮 -->
+            <div class="mt-auto pt-6">
+                <button onclick="navigateTo('screen-synthesis')" class="w-full bg-brandPurple hover:bg-purple-500 text-white font-medium py-3.5 rounded-xl transition-colors active:scale-[0.98]">
+                    开始克隆
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== 页面 3：语音合成 (图四) ==================== -->
+        <div id="screen-synthesis" class="screen hidden-right flex flex-col pt-12 pb-6">
+            <div class="flex items-center justify-between px-5 mb-6">
+                <i class="ph ph-x text-2xl cursor-pointer" onclick="navigateBack()"></i>
+                <h2 id="synthesis-title" class="text-lg font-medium flex items-center">语音合成 <span class="text-brandPurple text-xs ml-1 font-bold">AI</span></h2>
+                <div class="flex items-center space-x-2">
+                    <div class="bg-white/10 rounded-full px-2 py-1 flex items-center text-xs">
+                        <i class="ph-fill ph-hexagon text-white mr-1"></i> 600
+                    </div>
+                    <i class="ph ph-warning-circle text-xl"></i>
+                </div>
+            </div>
+
+            <div class="px-5 flex-1 overflow-y-auto no-scrollbar">
+                <!-- 文本输入区 -->
+                <div class="bg-[#1A1A24] rounded-2xl p-4 mb-4 min-h-[180px] flex flex-col relative">
+                    <textarea id="synthesis-textarea" class="w-full bg-transparent text-gray-300 text-[15px] leading-relaxed outline-none resize-none flex-1 placeholder-gray-600" placeholder="想让文字出来跳舞吗？我们的文本转语音服务就像魔法一样，把无声的字句变成有趣的声音冒险！快来试试吧！"></textarea>
+                    
+                    <div class="flex justify-between items-center mt-4 border-t border-white/5 pt-3">
+                        <button class="bg-white/5 px-3 py-1.5 rounded-lg text-xs flex items-center text-gray-300">
+                            <i class="ph-fill ph-globe-hemisphere-west mr-1.5"></i> 不翻译
+                        </button>
+                        <div class="flex items-center text-gray-500 text-xs">
+                            <span class="mr-3">0/500</span>
+                            <i class="ph ph-trash text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 故事库模块 (可折叠标签区) -->
+                <div id="story-library-section" class="mb-8">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-[15px] font-medium text-white flex items-center">
+                            <i class="ph-fill ph-books text-brandPurple mr-1.5"></i> 故事库
+                        </h3>
+                        <button onclick="toggleStoryTags()" id="story-toggle-btn" class="text-xs text-gray-500 flex items-center hover:text-gray-300 transition-colors">
+                            展开 <i class="ph ph-caret-down ml-1"></i>
+                        </button>
+                    </div>
+                    <div id="story-tags-container" class="flex flex-wrap gap-2.5 overflow-hidden max-h-[32px] transition-[max-height] duration-300 ease-in-out">
+                        <span onclick="selectStory(this)" class="story-tag px-3.5 py-1.5 rounded-full bg-brandPurple/20 text-purple-300 text-xs border border-brandPurple/50 cursor-pointer transition-colors whitespace-nowrap">睡前童话</span>
+                        <span onclick="selectStory(this)" class="story-tag px-3.5 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">安徒生童话</span>
+                        <span onclick="selectStory(this)" class="story-tag px-3.5 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">伊索寓言</span>
+                        <span onclick="selectStory(this)" class="story-tag px-3.5 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">小动物故事</span>
+                        <span onclick="selectStory(this)" class="story-tag px-3.5 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">习惯养成故事</span>
+                        <span onclick="selectStory(this)" class="story-tag px-3.5 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">3 分钟短故事</span>
+                    </div>
+                </div>
+
+                <!-- 营销参数配置区 (仅爆款口播显示) -->
+                <div id="marketing-tags-section" class="mb-8" style="display: none;">
+                    <!-- 风格选择 -->
+                    <div class="mb-5">
+                        <h3 class="text-[14px] font-medium text-white mb-3 flex items-center">
+                            <i class="ph-fill ph-presentation-chart text-blue-400 mr-1.5"></i> 介绍风格
+                        </h3>
+                        <div class="flex flex-wrap gap-2.5">
+                            <span onclick="selectMarketingTag(this, true)" class="marketing-style-tag px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-300 text-xs border border-blue-500/50 cursor-pointer transition-colors whitespace-nowrap">短视频种草</span>
+                            <span onclick="selectMarketingTag(this, true)" class="marketing-style-tag px-4 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">直播带货</span>
+                            <span onclick="selectMarketingTag(this, true)" class="marketing-style-tag px-4 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">产品发布</span>
+                            <span onclick="selectMarketingTag(this, true)" class="marketing-style-tag px-4 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">教程解说</span>
+                        </div>
+                    </div>
+                    <!-- 语气选择 -->
+                    <div>
+                        <h3 class="text-[14px] font-medium text-white mb-3 flex items-center">
+                            <i class="ph-fill ph-smiley text-blue-400 mr-1.5"></i> 语音语气
+                        </h3>
+                        <div class="flex flex-wrap gap-2.5">
+                            <span onclick="selectMarketingTag(this, false)" class="marketing-tone-tag px-4 py-1.5 rounded-full bg-blue-500/20 text-blue-300 text-xs border border-blue-500/50 cursor-pointer transition-colors whitespace-nowrap">亲切</span>
+                            <span onclick="selectMarketingTag(this, false)" class="marketing-tone-tag px-4 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">专业</span>
+                            <span onclick="selectMarketingTag(this, false)" class="marketing-tone-tag px-4 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">热情</span>
+                            <span onclick="selectMarketingTag(this, false)" class="marketing-tone-tag px-4 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">轻松</span>
+                            <span onclick="selectMarketingTag(this, false)" class="marketing-tone-tag px-4 py-1.5 rounded-full bg-white/5 text-gray-300 text-xs border border-white/10 cursor-pointer hover:bg-white/10 transition-colors whitespace-nowrap">有感染力</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 选择音色区 -->
+                <div class="mb-4 flex items-center justify-between">
+                    <div class="flex items-center">
+                        <h3 class="text-[15px] font-medium mr-2">选择音色</h3>
+                        <span class="text-[10px] text-gray-500">(长按音色可收藏)</span>
+                    </div>
+                </div>
+
+                <!-- 音色分类 Tab -->
+                <div class="flex space-x-4 text-xs mb-5 overflow-x-auto no-scrollbar items-center">
+                    <span class="text-gray-400 whitespace-nowrap">推荐</span>
+                    <span class="bg-white text-black px-3 py-1 rounded-full font-medium whitespace-nowrap">我的音色</span>
+                    <span class="text-gray-400 whitespace-nowrap flex items-center"><i class="ph-fill ph-star mr-1"></i> 我的收藏</span>
+                    <span class="text-gray-400 whitespace-nowrap">最近使用</span>
+                    <span class="text-gray-500 whitespace-nowrap ml-auto flex items-center">更多 <i class="ph ph-caret-right"></i></span>
+                </div>
+
+                <!-- 音色列表 (水平滚动) -->
+                <div class="flex space-x-4 overflow-x-auto no-scrollbar pb-2">
+                    <!-- 新增的音色 (高亮状态) -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 h-16 rounded-full p-[2px] bg-brandPurple mb-1 relative">
+                            <div class="w-full h-full rounded-full bg-gray-800 flex items-center justify-center overflow-hidden">
+                                <!-- 模拟一个人像/波纹 -->
+                                <div class="w-full h-full bg-gradient-to-br from-pink-400 to-purple-500 opacity-80"></div>
+                            </div>
+                            <div class="absolute bottom-0 right-0 bg-white rounded-full w-4 h-4 flex items-center justify-center">
+                                <i class="ph-bold ph-check text-brandPurple text-[10px]"></i>
+                            </div>
+                        </div>
+                        <span id="synthesis-voice-name" class="text-xs text-white">妈妈的声音</span>
+                    </div>
+
+                    <!-- 默认的添加按钮，加入点击跳转逻辑实现随时可录音 -->
+                    <div class="flex flex-col items-center cursor-pointer" onclick="openCloneMethodSheet()">
+                        <div class="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-1 border border-dashed border-gray-600 active:bg-white/20 transition-colors">
+                            <i class="ph ph-plus text-2xl text-gray-400"></i>
+                        </div>
+                        <span class="text-xs text-gray-400">克隆音色</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部生成按钮 -->
+            <div class="px-5 mt-auto">
+                <button class="w-full bg-[#2A2A35] text-gray-400 font-medium py-3.5 rounded-xl flex items-center justify-center transition-colors hover:bg-[#323240]">
+                    <i class="ph-fill ph-hexagon mr-1.5"></i> 0 <span class="mx-2">|</span> 立即生成
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 交互脚本 -->
+    <script>
+        // 工作流状态管理 (用于区分是亲子故事机还是AI角色陪伴)
+        let currentFlow = '';
+
+        function startFlow(flowType) {
+            currentFlow = flowType;
+            
+            // 获取所需模块
+            const storyLib = document.getElementById('story-library-section');
+            const marketingLib = document.getElementById('marketing-tags-section');
+            
+            // 模块按需展示隐藏
+            if (storyLib) storyLib.style.display = (flowType === 'story') ? 'block' : 'none';
+            if (marketingLib) marketingLib.style.display = (flowType === 'marketing') ? 'block' : 'none';
+            
+            // 动态调整参数与文案
+            let voiceName = '妈妈的声音';
+            let placeholderText = '请输入内容...';
+            
+            if (flowType === 'story') {
+                voiceName = '妈妈的声音';
+                placeholderText = '请输入故事内容，或上方选择故事库生成...';
+                document.getElementById('record-title').innerText = '亲子故事机';
+                document.getElementById('config-title').innerText = '亲子故事机';
+                document.getElementById('synthesis-title').innerHTML = '亲子故事机';
+            } else if (flowType === 'role') {
+                voiceName = '小鱼';
+                placeholderText = '请输入你想对TA说的话，或是剧情设定...';
+                document.getElementById('record-title').innerText = '克隆音色';
+                document.getElementById('config-title').innerText = '克隆配置';
+                document.getElementById('synthesis-title').innerHTML = '语音合成 <span class="text-brandPurple text-xs ml-1 font-bold">AI</span>';
+            } else if (flowType === 'marketing') {
+                voiceName = '金牌带货员';
+                placeholderText = '请输入产品名称/核心卖点，例如：这款面霜主打抗老，质地清爽不油腻，非常适合...';
+                document.getElementById('record-title').innerText = '爆款口播';
+                document.getElementById('config-title').innerText = '爆款口播';
+                document.getElementById('synthesis-title').innerHTML = '爆款口播 <span class="text-blue-400 text-xs ml-1 font-bold">PRO</span>';
+            }
+            
+            // 动态更新音色名称显示
+            document.getElementById('config-voice-name').value = voiceName;
+            document.getElementById('synthesis-voice-name').innerText = voiceName;
+            document.getElementById('synthesis-textarea').placeholder = placeholderText;
+            document.getElementById('synthesis-textarea').value = ''; // 清空之前的内容
+
+            // 路由跳转控制
+            if (flowType === 'marketing') {
+                // 第一步：输入产品内容，直接跳转至合成页
+                navigateTo('screen-synthesis');
+            } else {
+                // 统一先弹出选择框 (录音/上传)
+                openCloneMethodSheet();
+            }
+        }
+
+        // 简易路由栈管理
+        let screenStack = ['home-screen'];
+
+        function navigateTo(screenId) {
+            document.getElementById(screenId).classList.remove('hidden-right');
+            document.getElementById(screenId).classList.add('active');
+            screenStack.push(screenId);
+        }
+
+        function navigateBack() {
+            if(screenStack.length > 1) {
+                let current = screenStack.pop();
+                document.getElementById(current).classList.remove('active');
+                document.getElementById(current).classList.add('hidden-right');
+            }
+        }
+
+        // 底部弹窗控制
+        const sheet = document.getElementById('clone-method-sheet');
+        const backdrop = document.getElementById('clone-method-backdrop');
+
+        function openCloneMethodSheet() {
+            backdrop.classList.remove('opacity-0', 'pointer-events-none');
+            sheet.classList.remove('translate-y-full');
+        }
+
+        function closeCloneMethodSheet() {
+            backdrop.classList.add('opacity-0', 'pointer-events-none');
+            sheet.classList.add('translate-y-full');
+        }
+
+        // 模拟点击上传文件直接去配置页
+        function simulateUpload() {
+            closeCloneMethodSheet();
+            setTimeout(() => {
+                navigateTo('screen-config');
+            }, 300); // 等待弹窗收起动画
+        }
+
+        // 模拟录音过程
+        let isRecording = false;
+        function simulateRecording(btn) {
+            if(isRecording) return;
+            isRecording = true;
+            
+            const timer = document.getElementById('record-timer');
+            const hint = document.getElementById('record-hint');
+            const icon = document.getElementById('record-icon');
+            const r1 = document.getElementById('record-ripple-1');
+            const r2 = document.getElementById('record-ripple-2');
+
+            // UI 变更为录音中
+            hint.innerText = "正在聆听...";
+            icon.classList.replace('ph-microphone', 'ph-stop');
+            r1.classList.remove('hidden'); r1.classList.add('animate-ripple');
+            r2.classList.remove('hidden'); r2.classList.add('animate-ripple');
+            r2.style.animationDelay = '0.5s';
+
+            let secs = 0;
+            const interval = setInterval(() => {
+                secs++;
+                timer.innerText = `00:0${secs}`;
+                
+                // 模拟录制 2 秒后自动完成
+                if(secs >= 2) {
+                    clearInterval(interval);
+                    resetRecordUI();
+                    // 录制完成自动跳下一步
+                    setTimeout(() => navigateTo('screen-config'), 400);
+                }
+            }, 1000);
+
+            function resetRecordUI() {
+                isRecording = false;
+                hint.innerText = "录制完成";
+                icon.classList.replace('ph-stop', 'ph-check');
+                r1.classList.add('hidden'); r1.classList.remove('animate-ripple');
+                r2.classList.add('hidden'); r2.classList.remove('animate-ripple');
+                setTimeout(() => {
+                    timer.innerText = "00:00";
+                    hint.innerText = "点击开始录制";
+                    icon.classList.replace('ph-check', 'ph-microphone');
+                }, 1000);
+            }
+        }
+
+        // 故事库标签折叠展开逻辑
+        function toggleStoryTags() {
+            const container = document.getElementById('story-tags-container');
+            const btn = document.getElementById('story-toggle-btn');
+            if (container.classList.contains('max-h-[32px]')) {
+                container.classList.remove('max-h-[32px]');
+                container.classList.add('max-h-[200px]');
+                btn.innerHTML = '收起 <i class="ph ph-caret-up ml-1"></i>';
+            } else {
+                container.classList.remove('max-h-[200px]');
+                container.classList.add('max-h-[32px]');
+                btn.innerHTML = '展开 <i class="ph ph-caret-down ml-1"></i>';
+            }
+        }
+
+        // 故事标签选择交互
+        function selectStory(element) {
+            document.querySelectorAll('.story-tag').forEach(el => {
+                el.classList.remove('bg-brandPurple/20', 'border-brandPurple/50', 'text-purple-300');
+                el.classList.add('bg-white/5', 'border-white/10', 'text-gray-300');
+            });
+            element.classList.remove('bg-white/5', 'border-white/10', 'text-gray-300');
+            element.classList.add('bg-brandPurple/20', 'border-brandPurple/50', 'text-purple-300');
+            
+            // 联动文本框
+            const textarea = document.getElementById('synthesis-textarea');
+            textarea.value = `这是《${element.innerText}》的故事示例内容，准备用妈妈的声音讲给宝宝听...`;
+        }
+        
+        // 营销标签(风格/语气)单选交互
+        function selectMarketingTag(element, isStyle) {
+            const groupClass = isStyle ? '.marketing-style-tag' : '.marketing-tone-tag';
+            document.querySelectorAll(groupClass).forEach(el => {
+                el.classList.remove('bg-blue-500/20', 'border-blue-500/50', 'text-blue-300');
+                el.classList.add('bg-white/5', 'border-white/10', 'text-gray-300');
+            });
+            element.classList.remove('bg-white/5', 'border-white/10', 'text-gray-300');
+            element.classList.add('bg-blue-500/20', 'border-blue-500/50', 'text-blue-300');
+        }
+    </script>
+</body>
+</html>
